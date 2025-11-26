@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tipe Kepribadian MBTI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #4a148c 0%, #1a0033 100%);
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .personality-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .personality-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .personality-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .personality-type {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .type-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            filter: drop-shadow(2px 2px 4px rgba(0,0,0,0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .personality-card:nth-child(1) .type-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .personality-card:nth-child(2) .type-icon {
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        .personality-card:nth-child(3) .type-icon {
+            animation: rotate 4s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .personality-card:nth-child(4) .type-icon {
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            25% {
+                transform: translateY(-15px);
+            }
+            50% {
+                transform: translateY(0);
+            }
+            75% {
+                transform: translateY(-7px);
+            }
+        }
+
+        .type-name {
+            font-size: 1em;
+        }
+
+        .type-nickname {
+            font-size: 0.45em;
+            font-weight: normal;
+            opacity: 0.85;
+            font-style: italic;
+        }
+
+        .submenu {
+            list-style: none;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease;
+        }
+
+        .submenu.active {
+            max-height: 300px;
+        }
+
+        .submenu li {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submenu li:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(10px);
+            padding-left: 20px;
+        }
+
+        .arrow {
+            display: inline-block;
+            transition: transform 0.3s ease;
+            margin-left: 10px;
+        }
+
+        .arrow.rotated {
+            transform: rotate(180deg);
+        }
+
+        .detail-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #4a148c 0%, #1a0033 100%);
+            padding: 40px 20px;
+            overflow-y: auto;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .detail-page.active {
+            opacity: 1;
+            visibility: visible;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .back-button {
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            border: none;
+            padding: 14px 32px;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-button:hover {
+            background: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .back-button:active {
+            transform: translateY(0);
+        }
+
+        .detail-content {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 40px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.5s ease 0.2s both;
+        }
+
+        .detail-content h2 {
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .detail-content h4 {
+            font-size: 1.5em;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+
+        .detail-content h5 {
+            font-size: 1.2em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .detail-content p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+        }
+
+        .detail-content ul {
+            margin-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-content li {
+            margin-bottom: 12px;
+            line-height: 1.6;
+        }
+
+        .links-section {
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .links-section h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .link-item {
+            display: block;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 15px 20px;
+            margin: 12px 0;
+            border-radius: 10px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .link-item:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateX(10px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .personality-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-content {
+                padding: 25px;
+            }
+
+            .detail-content h2 {
+                font-size: 1.8em;
+            }
+
+            .back-button {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧠 Tipe Kepribadian MBTI</h1>
+        
+        <div class="personality-grid">
+            <div class="personality-card">
+                <div class="personality-type" onclick="toggleMenu('intp')">
+                    <div class="type-icon">🧪</div>
+                    <div class="type-name">INTP</div>
+                    <div class="type-nickname">The Logician</div>
+                    <span class="arrow" id="arrow-intp">▼</span>
+                </div>
+                <ul class="submenu" id="menu-intp">
+                    <li>📋 Karakteristik</li>
+                    <li>❤️ Hubungan</li>
+                    <li>💼 Karier</li>
+                    <li>📚 Gaya Belajar</li>
+                    <li>🌱 Pengembangan Diri</li>
+                </ul>
+            </div>
+
+            <div class="personality-card">
+                <div class="personality-type" onclick="toggleMenu('entp')">
+                    <div class="type-icon">💡</div>
+                    <div class="type-name">ENTP</div>
+                    <div class="type-nickname">The Debater</div>
+                    <span class="arrow" id="arrow-entp">▼</span>
+                </div>
+                <ul class="submenu" id="menu-entp">
+                    <li>📋 Karakteristik</li>
+                    <li>❤️ Hubungan</li>
+                    <li>💼 Karier</li>
+                    <li>📚 Gaya Belajar</li>
+                    <li>🌱 Pengembangan Diri</li>
+                </ul>
+            </div>
+
+            <div class="personality-card">
+                <div class="personality-type" onclick="toggleMenu('intj')">
+                    <div class="type-icon">♟️</div>
+                    <div class="type-name">INTJ</div>
+                    <div class="type-nickname">The Architect</div>
+                    <span class="arrow" id="arrow-intj">▼</span>
+                </div>
+                <ul class="submenu" id="menu-intj">
+                    <li>📋 Karakteristik</li>
+                    <li>❤️ Hubungan</li>
+                    <li>💼 Karier</li>
+                    <li>📚 Gaya Belajar</li>
+                    <li>🌱 Pengembangan Diri</li>
+                </ul>
+            </div>
+
+            <div class="personality-card">
+                <div class="personality-type" onclick="toggleMenu('entj')">
+                    <div class="type-icon">👑</div>
+                    <div class="type-name">ENTJ</div>
+                    <div class="type-nickname">The Commander</div>
+                    <span class="arrow" id="arrow-entj">▼</span>
+                </div>
+                <ul class="submenu" id="menu-entj">
+                    <li>📋 Karakteristik</li>
+                    <li>❤️ Hubungan</li>
+                    <li>💼 Karier</li>
+                    <li>📚 Gaya Belajar</li>
+                    <li>🌱 Pengembangan Diri</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="detail-page" class="detail-page">
+        <button class="back-button" onclick="goBack()">
+            <span>←</span>
+            <span>Kembali</span>
+        </button>
+        <div class="detail-content">
+            <h2 id="detail-title"></h2>
+            <div id="detail-text"></div>
+            <div class="links-section">
+                <h3>🔗 Link Terkait</h3>
+                <div id="detail-links"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const contentData = {
+            'intp-karakteristik': {
+                title: 'INTP - Karakteristik',
+                content: `
+                    <p><strong>INTP (The Logician)</strong> adalah tipe kepribadian yang dikenal sebagai pemikir abstrak dan inovatif.</p>
+                    
+                    <h4>Ciri-ciri Utama:</h4>
+                    <ul>
+                        <li><strong>Pemikir Analitis:</strong> Selalu menganalisis sistem dan teori dengan mendalam</li>
+                        <li><strong>Inovatif:</strong> Mampu melihat pola dan kemungkinan yang tidak terlihat orang lain</li>
+                        <li><strong>Independen:</strong> Lebih suka bekerja sendiri dan mengikuti logika mereka</li>
+                        <li><strong>Fleksibel:</strong> Spontan dan adaptif terhadap perubahan</li>
+                        <li><strong>Objektif:</strong> Mengutamakan logika di atas emosi dalam pengambilan keputusan</li>
+                    </ul>
+                    
+                    <h4>Kekuatan:</h4>
+                    <p>Kemampuan berpikir abstrak yang luar biasa, kreativitas dalam pemecahan masalah, dan pemahaman mendalam tentang sistem kompleks.</p>
+                    
+                    <h4>Kelemahan:</h4>
+                    <p>Cenderung overthinking, kesulitan mengekspresikan emosi, dan terkadang terlalu perfeksionis.</p>
+                `,
+                links: [
+                    { text: '16Personalities - INTP', url: 'https://www.16personalities.com/intp-personality' },
+                    { text: 'Psychology Junkie - INTP Guide', url: 'https://www.psychologyjunkie.com/intp/' },
+                    { text: 'Truity - INTP Profile', url: 'https://www.truity.com/personality-type/INTP' }
+                ]
+            },
+            'intp-hubungan': {
+                title: 'INTP - Hubungan',
+                content: `
+                    <h4>Dalam Hubungan Romantis:</h4>
+                    <p>INTP cenderung tertarik pada partner yang dapat merangsang mereka secara intelektual. Mereka menghargai kemandirian dan ruang pribadi dalam hubungan.</p>
+                    
+                    <h4>Kompatibilitas Terbaik:</h4>
+                    <ul>
+                        <li><strong>ENTJ:</strong> Saling melengkapi dalam visi dan pemikiran strategis</li>
+                        <li><strong>INFJ:</strong> Kedalaman emosional dan intelektual yang seimbang</li>
+                        <li><strong>ENTP:</strong> Partner debat dan eksplorasi ide yang sempurna</li>
+                    </ul>
+                    
+                    <h4>Tips Hubungan:</h4>
+                    <ul>
+                        <li>Berkomunikasi kebutuhan akan waktu sendiri</li>
+                        <li>Usahakan untuk menunjukkan apresiasi secara verbal</li>
+                        <li>Jangan takut untuk berbagi pemikiran abstrak Anda</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'INTP Relationship Guide', url: 'https://www.psychologyjunkie.com/intp-relationships/' },
+                    { text: 'MBTI Compatibility Chart', url: 'https://www.truity.com/personality-type/INTP/relationships' }
+                ]
+            },
+            'intp-karier': {
+                title: 'INTP - Karier',
+                content: `
+                    <h4>Karier Ideal untuk INTP:</h4>
+                    <ul>
+                        <li><strong>Software Engineer/Developer:</strong> Coding dan pemecahan masalah teknis</li>
+                        <li><strong>Data Scientist:</strong> Analisis data dan pattern recognition</li>
+                        <li><strong>Researcher/Scientist:</strong> Penelitian dan pengembangan teori</li>
+                        <li><strong>Architect:</strong> Desain sistem dan struktur kompleks</li>
+                        <li><strong>Professor/Akademisi:</strong> Mengajar dan penelitian mendalam</li>
+                        <li><strong>Philosopher:</strong> Pemikiran abstrak dan konseptual</li>
+                    </ul>
+                    
+                    <h4>Lingkungan Kerja yang Cocok:</h4>
+                    <p>INTP berkembang di lingkungan yang memberikan otonomi, tantangan intelektual, dan fleksibilitas. Mereka lebih suka bekerja dengan tim kecil atau sendiri.</p>
+                `,
+                links: [
+                    { text: 'Best Careers for INTP', url: 'https://www.truity.com/personality-type/INTP/careers' },
+                    { text: 'INTP Career Guide', url: 'https://www.careerplanner.com/MB2/TypeINTP.cfm' }
+                ]
+            },
+            'intp-gaya-belajar': {
+                title: 'INTP - Gaya Belajar',
+                content: `
+                    <h4>Karakteristik Belajar INTP:</h4>
+                    <ul>
+                        <li><strong>Conceptual Learner:</strong> Lebih suka memahami konsep dasar sebelum detail</li>
+                        <li><strong>Self-Directed:</strong> Belajar mandiri dengan eksplorasi mendalam</li>
+                        <li><strong>Theoretical:</strong> Tertarik pada teori dan prinsip fundamental</li>
+                        <li><strong>Question Everything:</strong> Selalu mempertanyakan dan menganalisis informasi</li>
+                    </ul>
+                    
+                    <h4>Strategi Belajar Efektif:</h4>
+                    <ul>
+                        <li>Mulai dari big picture kemudian ke detail</li>
+                        <li>Gunakan diagram dan mind mapping</li>
+                        <li>Belajar melalui pemecahan masalah dan eksperimen</li>
+                        <li>Berdiskusi dengan orang yang menantang pemikiran Anda</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'INTP Learning Style', url: 'https://www.psychologyjunkie.com/intp-learning-style/' },
+                    { text: 'Study Tips for INTP', url: 'https://www.16personalities.com/articles/study-tips-for-logicians-intps' }
+                ]
+            },
+            'entp-karakteristik': {
+                title: 'ENTP - Karakteristik',
+                content: `
+                    <p><strong>ENTP (The Debater)</strong> adalah tipe kepribadian yang penuh energi, kreatif, dan selalu siap untuk berdebat.</p>
+                    
+                    <h4>Ciri-ciri Utama:</h4>
+                    <ul>
+                        <li><strong>Inovator Ekstrovert:</strong> Senang berbagi ide dan brainstorming dengan orang lain</li>
+                        <li><strong>Pembicara Ulung:</strong> Mahir dalam argumentasi dan melihat berbagai perspektif</li>
+                        <li><strong>Visioner:</strong> Selalu melihat kemungkinan baru dan peluang yang belum tergali</li>
+                        <li><strong>Spontan & Adaptif:</strong> Fleksibel dan cepat menyesuaikan diri dengan perubahan</li>
+                        <li><strong>Menantang Status Quo:</strong> Mempertanyakan sistem dan tradisi yang ada</li>
+                    </ul>
+                    
+                    <h4>Kekuatan:</h4>
+                    <p>Kemampuan berpikir cepat dan kreatif, karisma dalam komunikasi, dan keberanian mengambil risiko untuk ide baru.</p>
+                    
+                    <h4>Kelemahan:</h4>
+                    <p>Mudah bosan dengan rutinitas, sulit fokus pada satu proyek hingga selesai, dan terkadang terlalu argumentatif.</p>
+                `,
+                links: [
+                    { text: '16Personalities - ENTP', url: 'https://www.16personalities.com/entp-personality' },
+                    { text: 'Psychology Junkie - ENTP Guide', url: 'https://www.psychologyjunkie.com/entp/' },
+                    { text: 'Truity - ENTP Profile', url: 'https://www.truity.com/personality-type/ENTP' }
+                ]
+            },
+            'entp-hubungan': {
+                title: 'ENTP - Hubungan',
+                content: `
+                    <h4>Dalam Hubungan Romantis:</h4>
+                    <p>ENTP mencari partner yang bisa mengimbangi energi dan antusiasme mereka. Mereka menghargai kebebasan, spontanitas, dan stimulasi intelektual dalam hubungan.</p>
+                    
+                    <h4>Kompatibilitas Terbaik:</h4>
+                    <ul>
+                        <li><strong>INTJ:</strong> Kedalaman pemikiran strategis yang saling melengkapi</li>
+                        <li><strong>INFJ:</strong> Balance antara logika dan empati yang harmonis</li>
+                        <li><strong>INTP:</strong> Partner eksplorasi ide yang setara</li>
+                    </ul>
+                    
+                    <h4>Tips Hubungan:</h4>
+                    <ul>
+                        <li>Jangan membuat setiap percakapan menjadi debat</li>
+                        <li>Tunjukkan komitmen melalui tindakan, bukan hanya kata-kata</li>
+                        <li>Berikan ruang untuk partner mengekspresikan diri</li>
+                        <li>Selesaikan konflik dengan komunikasi terbuka</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'ENTP Relationship Guide', url: 'https://www.psychologyjunkie.com/entp-relationships/' },
+                    { text: 'ENTP Compatibility', url: 'https://www.truity.com/personality-type/ENTP/relationships' }
+                ]
+            },
+            'entp-karier': {
+                title: 'ENTP - Karier',
+                content: `
+                    <h4>Karier Ideal untuk ENTP:</h4>
+                    <ul>
+                        <li><strong>Entrepreneur/Startup Founder:</strong> Menciptakan dan mengembangkan bisnis baru</li>
+                        <li><strong>Marketing/Brand Strategist:</strong> Mengembangkan kampanye kreatif dan inovatif</li>
+                        <li><strong>Lawyer/Attorney:</strong> Argumentasi dan analisis kasus hukum</li>
+                        <li><strong>Consultant:</strong> Memecahkan masalah kompleks untuk berbagai klien</li>
+                        <li><strong>Product Manager:</strong> Mengembangkan produk dari konsep hingga eksekusi</li>
+                        <li><strong>Inventor/Designer:</strong> Menciptakan solusi inovatif</li>
+                    </ul>
+                    
+                    <h4>Lingkungan Kerja yang Cocok:</h4>
+                    <p>ENTP berkembang di lingkungan yang dinamis, menantang, dan memberi kebebasan untuk bereksperimen. Mereka membutuhkan variasi dan peluang untuk berinovasi.</p>
+                `,
+                links: [
+                    { text: 'Best Careers for ENTP', url: 'https://www.truity.com/personality-type/ENTP/careers' },
+                    { text: 'ENTP Career Guide', url: 'https://www.careerplanner.com/MB2/TypeENTP.cfm' }
+                ]
+            },
+            'entp-gaya-belajar': {
+                title: 'ENTP - Gaya Belajar',
+                content: `
+                    <h4>Karakteristik Belajar ENTP:</h4>
+                    <ul>
+                        <li><strong>Interactive Learner:</strong> Belajar terbaik melalui diskusi dan debat</li>
+                        <li><strong>Big Picture First:</strong> Memahami konsep besar sebelum detail</li>
+                        <li><strong>Learning by Doing:</strong> Eksperimen langsung lebih efektif daripada teori</li>
+                        <li><strong>Multitasking:</strong> Belajar beberapa topik sekaligus untuk menghindari kebosanan</li>
+                    </ul>
+                    
+                    <h4>Strategi Belajar Efektif:</h4>
+                    <ul>
+                        <li>Bergabung dengan study group untuk diskusi aktif</li>
+                        <li>Gunakan metode Pomodoro dengan break yang sering</li>
+                        <li>Buat mind map untuk menghubungkan berbagai konsep</li>
+                        <li>Aplikasikan teori ke dalam proyek nyata</li>
+                        <li>Challenge diri dengan perspektif yang berbeda</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'ENTP Learning Style', url: 'https://www.psychologyjunkie.com/entp-learning-style/' },
+                    { text: 'Study Tips for ENTP', url: 'https://www.16personalities.com/articles/study-tips-for-debaters-entps' }
+                ]
+            },
+            'entp-pengembangan-diri': {
+                title: 'ENTP - Pengembangan Diri',
+                content: `
+                    <h4>Area Pengembangan untuk ENTP:</h4>
+                    
+                    <h5>1. Follow Through</h5>
+                    <p>Latih kemampuan menyelesaikan proyek hingga tuntas, bukan hanya fase ideasi dan perencanaan.</p>
+                    
+                    <h5>2. Empati dan Sensitivitas</h5>
+                    <p>Kembangkan kemampuan memahami dan merespons emosi orang lain dengan lebih baik.</p>
+                    
+                    <h5>3. Fokus dan Konsistensi</h5>
+                    <p>Belajar untuk tetap fokus pada satu tujuan jangka panjang tanpa terganggu ide baru.</p>
+                    
+                    <h5>4. Detail-Oriented</h5>
+                    <p>Tingkatkan perhatian pada detail penting yang sering terlewatkan.</p>
+                    
+                    <h4>Tips Pengembangan:</h4>
+                    <ul>
+                        <li>Buat sistem accountability dengan deadline jelas</li>
+                        <li>Practice active listening tanpa langsung counter-argue</li>
+                        <li>Prioritaskan 2-3 proyek utama, selesaikan sebelum mulai yang baru</li>
+                        <li>Latih mindfulness untuk meningkatkan fokus</li>
+                        <li>Minta feedback dari orang terdekat tentang dampak kata-kata Anda</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'ENTP Personal Growth', url: 'https://www.personalityjunkie.com/entp-development/' },
+                    { text: 'Self-Improvement for ENTP', url: 'https://www.psychologyjunkie.com/10-ways-entps-can-improve/' }
+                ]
+            },
+            'intj-karakteristik': {
+                title: 'INTJ - Karakteristik',
+                content: `
+                    <p><strong>INTJ (The Architect)</strong> adalah tipe kepribadian yang strategis, independen, dan berorientasi pada visi jangka panjang.</p>
+                    
+                    <h4>Ciri-ciri Utama:</h4>
+                    <ul>
+                        <li><strong>Pemikir Strategis:</strong> Selalu membuat rencana jangka panjang yang terstruktur</li>
+                        <li><strong>Visioner:</strong> Melihat gambaran besar dan potensi masa depan</li>
+                        <li><strong>Independen:</strong> Sangat percaya diri dan mengandalkan penilaian sendiri</li>
+                        <li><strong>Perfeksionis:</strong> Standar tinggi untuk diri sendiri dan orang lain</li>
+                        <li><strong>Decisive:</strong> Cepat membuat keputusan berdasarkan analisis mendalam</li>
+                    </ul>
+                    
+                    <h4>Kekuatan:</h4>
+                    <p>Kemampuan berpikir strategis yang tajam, determinasi kuat, dan konsistensi dalam mencapai tujuan jangka panjang.</p>
+                    
+                    <h4>Kelemahan:</h4>
+                    <p>Terlalu kritis terhadap diri sendiri dan orang lain, kesulitan mengekspresikan emosi, dan cenderung terlalu perfeksionis.</p>
+                `,
+                links: [
+                    { text: '16Personalities - INTJ', url: 'https://www.16personalities.com/intj-personality' },
+                    { text: 'Psychology Junkie - INTJ Guide', url: 'https://www.psychologyjunkie.com/intj/' },
+                    { text: 'Truity - INTJ Profile', url: 'https://www.truity.com/personality-type/INTJ' }
+                ]
+            },
+            'intj-hubungan': {
+                title: 'INTJ - Hubungan',
+                content: `
+                    <h4>Dalam Hubungan Romantis:</h4>
+                    <p>INTJ mencari partner yang bisa menghargai kedalaman pemikiran mereka dan memberikan stimulasi intelektual. Mereka serius dan loyal dalam komitmen.</p>
+                    
+                    <h4>Kompatibilitas Terbaik:</h4>
+                    <ul>
+                        <li><strong>ENTP:</strong> Keseimbangan antara visi strategis dan kreativitas spontan</li>
+                        <li><strong>ENFP:</strong> Energi dan kehangatan yang melengkapi sifat serius INTJ</li>
+                        <li><strong>INTP:</strong> Kedalaman intelektual dan pemahaman mutual</li>
+                    </ul>
+                    
+                    <h4>Tips Hubungan:</h4>
+                    <ul>
+                        <li>Ekspresikan apresiasi secara verbal, bukan hanya asumsi</li>
+                        <li>Belajar mendengarkan emosi partner tanpa langsung problem-solving</li>
+                        <li>Berikan waktu berkualitas, bukan hanya efisiensi</li>
+                        <li>Terbuka terhadap spontanitas sesekali</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'INTJ Relationship Guide', url: 'https://www.psychologyjunkie.com/intj-relationships/' },
+                    { text: 'INTJ Compatibility', url: 'https://www.truity.com/personality-type/INTJ/relationships' }
+                ]
+            },
+            'intj-karier': {
+                title: 'INTJ - Karier',
+                content: `
+                    <h4>Karier Ideal untuk INTJ:</h4>
+                    <ul>
+                        <li><strong>Strategic Planner/Analyst:</strong> Mengembangkan strategi bisnis jangka panjang</li>
+                        <li><strong>Software Architect:</strong> Merancang sistem software kompleks</li>
+                        <li><strong>Investment Banker/Financial Analyst:</strong> Analisis pasar dan strategi investasi</li>
+                        <li><strong>Scientist/Researcher:</strong> Penelitian mendalam di bidang tertentu</li>
+                        <li><strong>Engineer:</strong> Merancang dan mengoptimalkan sistem teknis</li>
+                        <li><strong>CEO/Executive:</strong> Memimpin dengan visi strategis jangka panjang</li>
+                    </ul>
+                    
+                    <h4>Lingkungan Kerja yang Cocok:</h4>
+                    <p>INTJ berkembang di lingkungan yang terstruktur namun memberi otonomi, dengan fokus pada hasil dan kualitas. Mereka membutuhkan ruang untuk bekerja secara independen.</p>
+                `,
+                links: [
+                    { text: 'Best Careers for INTJ', url: 'https://www.truity.com/personality-type/INTJ/careers' },
+                    { text: 'INTJ Career Guide', url: 'https://www.careerplanner.com/MB2/TypeINTJ.cfm' }
+                ]
+            },
+            'intj-gaya-belajar': {
+                title: 'INTJ - Gaya Belajar',
+                content: `
+                    <h4>Karakteristik Belajar INTJ:</h4>
+                    <ul>
+                        <li><strong>Strategic Learner:</strong> Membuat rencana belajar jangka panjang yang terstruktur</li>
+                        <li><strong>Independent Study:</strong> Lebih efektif belajar sendiri dengan sumber yang dipilih</li>
+                        <li><strong>Conceptual Understanding:</strong> Fokus pada pemahaman mendalam, bukan hafalan</li>
+                        <li><strong>Goal-Oriented:</strong> Belajar dengan tujuan dan aplikasi jelas dalam pikiran</li>
+                    </ul>
+                    
+                    <h4>Strategi Belajar Efektif:</h4>
+                    <ul>
+                        <li>Buat roadmap pembelajaran dengan milestone jelas</li>
+                        <li>Gunakan sumber berkualitas tinggi dan terpercaya</li>
+                        <li>Fokus pada pemahaman konsep fundamental</li>
+                        <li>Aplikasikan pengetahuan ke dalam proyek nyata</li>
+                        <li>Minimalisir distraksi dengan environment terkontrol</li>
+                        <li>Review dan optimize sistem belajar secara berkala</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'INTJ Learning Style', url: 'https://www.psychologyjunkie.com/intj-learning-style/' },
+                    { text: 'Study Tips for INTJ', url: 'https://www.16personalities.com/articles/study-tips-for-architects-intjs' }
+                ]
+            },
+            'intj-pengembangan-diri': {
+                title: 'INTJ - Pengembangan Diri',
+                content: `
+                    <h4>Area Pengembangan untuk INTJ:</h4>
+                    
+                    <h5>1. Emotional Expression</h5>
+                    <p>Latih kemampuan mengekspresikan dan memvalidasi emosi, baik sendiri maupun orang lain.</p>
+                    
+                    <h5>2. Flexibility</h5>
+                    <p>Belajar untuk lebih fleksibel dan terbuka terhadap perubahan rencana atau pendekatan baru.</p>
+                    
+                    <h5>3. People Skills</h5>
+                    <p>Kembangkan kemampuan berempati dan membangun hubungan interpersonal yang hangat.</p>
+                    
+                    <h5>4. Present Moment Awareness</h5>
+                    <p>Balance fokus pada masa depan dengan apresiasi terhadap momen sekarang.</p>
+                    
+                    <h4>Tips Pengembangan:</h4>
+                    <ul>
+                        <li>Practice empati dengan mendengarkan tanpa menganalisis</li>
+                        <li>Set aside perfeksionisme untuk proyek-proyek tertentu</li>
+                        <li>Engage dalam aktivitas sosial secara rutin</li>
+                        <li>Latih mindfulness dan gratitude daily</li>
+                        <li>Terima bahwa tidak semua hal bisa direncanakan</li>
+                        <li>Minta feedback dari orang terdekat tentang cara komunikasi</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'INTJ Personal Growth', url: 'https://www.personalityjunkie.com/intj-development/' },
+                    { text: 'Self-Improvement for INTJ', url: 'https://www.psychologyjunkie.com/10-things-intjs-can-do-to-improve/' }
+                ]
+            },
+            'entj-karakteristik': {
+                title: 'ENTJ - Karakteristik',
+                content: `
+                    <p><strong>ENTJ (The Commander)</strong> adalah tipe kepribadian yang tegas, karismatik, dan natural born leader.</p>
+                    
+                    <h4>Ciri-ciri Utama:</h4>
+                    <ul>
+                        <li><strong>Natural Leader:</strong> Secara alami mengambil peran kepemimpinan dan menginspirasi</li>
+                        <li><strong>Decisive:</strong> Cepat membuat keputusan tegas berdasarkan logika</li>
+                        <li><strong>Strategic Thinker:</strong> Melihat gambaran besar dan merencanakan langkah-langkah mencapai tujuan</li>
+                        <li><strong>Assertive:</strong> Tegas dalam komunikasi dan tidak takut mengambil risiko</li>
+                        <li><strong>Efisiensi-Oriented:</strong> Fokus pada hasil dan produktivitas maksimal</li>
+                    </ul>
+                    
+                    <h4>Kekuatan:</h4>
+                    <p>Kepemimpinan yang kuat, kemampuan organisasi yang luar biasa, dan determinasi tinggi dalam mencapai goals.</p>
+                    
+                    <h4>Kelemahan:</h4>
+                    <p>Terlalu dominan, kurang sabar dengan inefficiency, dan kesulitan menunjukkan kerentanan emosional.</p>
+                `,
+                links: [
+                    { text: '16Personalities - ENTJ', url: 'https://www.16personalities.com/entj-personality' },
+                    { text: 'Psychology Junkie - ENTJ Guide', url: 'https://www.psychologyjunkie.com/entj/' },
+                    { text: 'Truity - ENTJ Profile', url: 'https://www.truity.com/personality-type/ENTJ' }
+                ]
+            },
+            'entj-hubungan': {
+                title: 'ENTJ - Hubungan',
+                content: `
+                    <h4>Dalam Hubungan Romantis:</h4>
+                    <p>ENTJ mencari partner yang kuat, independen, dan bisa match dengan ambisi mereka. Mereka loyal dan committed dalam hubungan serius.</p>
+                    
+                    <h4>Kompatibilitas Terbaik:</h4>
+                    <ul>
+                        <li><strong>INTP:</strong> Balance antara kepemimpinan dan analisis mendalam</li>
+                        <li><strong>INFP:</strong> Kehangatan emosional yang melengkapi sisi logis ENTJ</li>
+                        <li><strong>INTJ:</strong> Visi strategis yang sejalan dan saling respect</li>
+                    </ul>
+                    
+                    <h4>Tips Hubungan:</h4>
+                    <ul>
+                        <li>Jangan treat hubungan seperti proyek yang harus di-manage</li>
+                        <li>Practice vulnerability dan berbagi perasaan</li>
+                        <li>Dengarkan partner tanpa langsung memberikan solusi</li>
+                        <li>Apresiasi kontribusi partner yang berbeda dari cara Anda</li>
+                        <li>Beri ruang untuk spontanitas dan relaksasi</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'ENTJ Relationship Guide', url: 'https://www.psychologyjunkie.com/entj-relationships/' },
+                    { text: 'ENTJ Compatibility', url: 'https://www.truity.com/personality-type/ENTJ/relationships' }
+                ]
+            },
+            'entj-karier': {
+                title: 'ENTJ - Karier',
+                content: `
+                    <h4>Karier Ideal untuk ENTJ:</h4>
+                    <ul>
+                        <li><strong>CEO/Executive Director:</strong> Memimpin organisasi menuju visi besar</li>
+                        <li><strong>Business Consultant:</strong> Mengoptimalkan strategi dan operasi bisnis</li>
+                        <li><strong>Attorney/Judge:</strong> Argumentasi logis dan pengambilan keputusan tegas</li>
+                        <li><strong>Entrepreneur:</strong> Membangun dan mengembangkan bisnis sendiri</li>
+                        <li><strong>Investment Banker:</strong> Strategi finansial dan deal-making</li>
+                        <li><strong>Military Officer:</strong> Kepemimpinan strategis dan organisasi</li>
+                    </ul>
+                    
+                    <h4>Lingkungan Kerja yang Cocok:</h4>
+                    <p>ENTJ berkembang di posisi kepemimpinan dengan tantangan besar dan peluang membuat impact signifikan. Mereka membutuhkan otonomi dan tim yang kompeten.</p>
+                `,
+                links: [
+                    { text: 'Best Careers for ENTJ', url: 'https://www.truity.com/personality-type/ENTJ/careers' },
+                    { text: 'ENTJ Career Guide', url: 'https://www.careerplanner.com/MB2/TypeENTJ.cfm' }
+                ]
+            },
+            'entj-gaya-belajar': {
+                title: 'ENTJ - Gaya Belajar',
+                content: `
+                    <h4>Karakteristik Belajar ENTJ:</h4>
+                    <ul>
+                        <li><strong>Goal-Driven:</strong> Belajar dengan target dan aplikasi praktis yang jelas</li>
+                        <li><strong>Leadership in Learning:</strong> Sering memimpin study group atau projek tim</li>
+                        <li><strong>Efficiency-Focused:</strong> Mencari cara tercepat dan paling efektif</li>
+                        <li><strong>Competitive:</strong> Termotivasi oleh challenge dan kompetisi</li>
+                    </ul>
+                    
+                    <h4>Strategi Belajar Efektif:</h4>
+                    <ul>
+                        <li>Set goals yang measurable dengan deadline jelas</li>
+                        <li>Organize study plan dengan struktur yang tight</li>
+                        <li>Fokus pada aplikasi praktis dan real-world impact</li>
+                        <li>Lead atau join study group untuk diskusi</li>
+                        <li>Gunakan competitive elements (leaderboard, challenges)</li>
+                        <li>Eliminate inefficiencies dalam proses belajar</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'ENTJ Learning Style', url: 'https://www.psychologyjunkie.com/entj-learning-style/' },
+                    { text: 'Study Tips for ENTJ', url: 'https://www.16personalities.com/articles/study-tips-for-commanders-entjs' }
+                ]
+            },
+            'entj-pengembangan-diri': {
+                title: 'ENTJ - Pengembangan Diri',
+                content: `
+                    <h4>Area Pengembangan untuk ENTJ:</h4>
+                    
+                    <h5>1. Patience & Empathy</h5>
+                    <p>Kembangkan kesabaran dengan orang yang bekerja dengan pace berbeda dan lebih berempati pada kebutuhan emosional.</p>
+                    
+                    <h5>2. Work-Life Balance</h5>
+                    <p>Belajar untuk disconnect dari work mode dan appreciate downtime.</p>
+                    
+                    <h5>3. Listening Skills</h5>
+                    <p>Practice mendengarkan sepenuhnya tanpa langsung interject atau take over.</p>
+                    
+                    <h5>4. Vulnerability</h5>
+                    <p>Izinkan diri untuk menunjukkan sisi vulnerable dan menerima support dari orang lain.</p>
+                    
+                    <h4>Tips Pengembangan:</h4>
+                    <ul>
+                        <li>Practice active listening dengan pause before responding</li>
+                        <li>Schedule regular downtime dan honor it seperti meeting</li>
+                        <li>Delegate more dan trust tim untuk deliver</li>
+                        <li>Express gratitude untuk kontribusi orang lain</li>
+                        <li>Engage dalam aktivitas non-competitive untuk relax</li>
+                        <li>Seek feedback tentang leadership style Anda</li>
+                    </ul>
+                `,
+                links: [
+                    { text: 'ENTJ Personal Growth', url: 'https://www.personalityjunkie.com/entj-development/' },
+                    { text: 'Self-Improvement for ENTJ', url: 'https://www.psychologyjunkie.com/10-things-entjs-can-do-to-improve/' }
+                ]
+            }
+        };
+
+        // Generate content for other personality types
+        const types = ['entp', 'intj', 'entj'];
+        const categories = ['karakteristik', 'hubungan', 'karier', 'gaya-belajar', 'pengembangan-diri'];
+
+        function toggleMenu(type) {
+            const menu = document.getElementById('menu-' + type);
+            const arrow = document.getElementById('arrow-' + type);
+            
+            menu.classList.toggle('active');
+            arrow.classList.toggle('rotated');
+        }
+
+        function showDetail(type, category) {
+            const key = `${type}-${category}`;
+            const data = contentData[key];
+            
+            if (data) {
+                document.getElementById('detail-title').textContent = data.title;
+                document.getElementById('detail-text').innerHTML = data.content;
+                
+                let linksHTML = '';
+                data.links.forEach(link => {
+                    linksHTML += `<a href="${link.url}" target="_blank" class="link-item">${link.text}</a>`;
+                });
+                document.getElementById('detail-links').innerHTML = linksHTML;
+                
+                document.querySelector('.container').style.display = 'none';
+                document.getElementById('detail-page').classList.add('active');
+            }
+        }
+
+        function goBack() {
+            document.getElementById('detail-page').classList.remove('active');
+            setTimeout(() => {
+                document.querySelector('.container').style.display = 'block';
+            }, 300);
+        }
+
+        // Add click handlers to submenu items
+        document.addEventListener('DOMContentLoaded', function() {
+            const allSubmenus = document.querySelectorAll('.submenu li');
+            allSubmenus.forEach((item, index) => {
+                const card = item.closest('.personality-card');
+                const typeElement = card.querySelector('.type-name');
+                const type = typeElement.textContent.trim().toLowerCase();
+                
+                const categories = ['karakteristik', 'hubungan', 'karier', 'gaya-belajar', 'pengembangan-diri'];
+                const categoryIndex = Array.from(item.parentElement.children).indexOf(item);
+                const category = categories[categoryIndex];
+                
+                item.onclick = function() {
+                    showDetail(type, category);
+                };
+            });
+        });
+    </script>
+</body>
+  </html>
